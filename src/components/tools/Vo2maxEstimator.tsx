@@ -17,7 +17,7 @@ import {
   type Sex,
   type Vo2maxNormRow,
 } from "@/lib/calc";
-import { Card, CopyButton, NumberInput, ResultStat, ResultTable, Segmented, StatGrid, TextInput } from "@/components/ui";
+import { Card, CopyButton, NumberInput, ResultStat, ResultTable, Segmented, ShareButton, StatGrid, TextInput } from "@/components/ui";
 import {
   DistanceField,
   EmptyResult,
@@ -30,6 +30,16 @@ import {
   resolveDistanceKm,
   type DistUnit,
 } from "./shared";
+import {
+  DIST_UNIT_TOKENS,
+  distanceField,
+  enumField,
+  isDuration,
+  numIn,
+  textField,
+  tokenValue,
+  useUrlState,
+} from "./useUrlState";
 
 type Method = "race" | "cooper" | "hr";
 type CooperUnit = "m" | "mile";
@@ -39,6 +49,16 @@ const METHOD_LABEL: Record<Method, string> = {
   cooper: "Cooper 12-minute test",
   hr: "Heart-rate ratio (Uth–Sørensen)",
 };
+
+const COOPER_UNIT_TOKENS: Record<CooperUnit, string> = { m: "m", mile: "mi" };
+
+/** 12-min distance in metres, valid for the Cooper formula. */
+function validCooper(raw: string, u: CooperUnit): boolean {
+  const n = parseNum(raw);
+  if (n == null || n <= 0) return false;
+  const m = u === "m" ? n : milesToKm(n) * 1000;
+  return m >= 1000 && m <= 5000;
+}
 
 const EQUIV_IDS = ["5k", "10k", "half", "marathon"];
 
@@ -58,6 +78,25 @@ export default function Vo2maxEstimator() {
   const [age, setAge] = useState("35");
   const [sex, setSex] = useState<Sex>("male");
   const [unit, setUnit] = useState<DistUnit>("km");
+
+  useUrlState({
+    m: enumField(method, setMethod, "race", { race: "race", cooper: "cooper", hr: "hr" }),
+    d: distanceField(dist, setDist, "10k", method === "race"),
+    t: textField(time, setTime, "50:00", isDuration(), method === "race"),
+    cd: textField(
+      cooper,
+      setCooper,
+      "2400",
+      (r, params) => validCooper(r, params ? tokenValue(params, "cu", COOPER_UNIT_TOKENS, "m") : cooperUnit),
+      method === "cooper",
+    ),
+    cu: enumField(cooperUnit, setCooperUnit, "m", COOPER_UNIT_TOKENS, method === "cooper"),
+    mx: textField(maxHr, setMaxHr, "185", numIn(100, 230), method === "hr"),
+    r: textField(restHr, setRestHr, "55", numIn(25, 110), method === "hr"),
+    a: textField(age, setAge, "35", numIn(18, 100)),
+    sx: enumField(sex, setSex, "male", { male: "m", female: "f" }),
+    u: enumField(unit, setUnit, "km", DIST_UNIT_TOKENS),
+  });
 
   const raceKm = resolveDistanceKm(dist);
   const timeErr = method === "race" ? durationError(time, "race time") : undefined;
@@ -243,6 +282,7 @@ export default function Vo2maxEstimator() {
           <>
             <UnitToggle value={unit} onChange={setUnit} />
             <CopyButton text={summary} />
+            <ShareButton />
           </>
         }
       >

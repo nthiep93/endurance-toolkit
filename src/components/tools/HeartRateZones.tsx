@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { estimateMaxHr, karvonenZones, percentMaxZones, type HrZone, type MaxHrFormula } from "@/lib/calc";
-import { Card, CopyButton, NumberInput, ResultStat, ResultTable, Segmented, Select, StatGrid, cx } from "@/components/ui";
+import { Card, CopyButton, NumberInput, ResultStat, ResultTable, Segmented, Select, ShareButton, StatGrid, cx } from "@/components/ui";
 import { EmptyResult, parseNum } from "./shared";
+import { enumField, numIn, textField, useUrlState } from "./useUrlState";
 
 type MaxSource = "age" | "known";
 type Method = "karvonen" | "percent";
@@ -35,6 +36,15 @@ export default function HeartRateZones() {
   const [knownMax, setKnownMax] = useState("185");
   const [rest, setRest] = useState("55");
   const [method, setMethod] = useState<Method>("karvonen");
+
+  useUrlState({
+    s: enumField(source, setSource, "age", { age: "age", known: "max" }),
+    a: textField(age, setAge, "35", numIn(10, 100), source === "age"),
+    f: enumField(formula, setFormula, "tanaka", { tanaka: "tanaka", gellish: "gellish", fox: "fox" }, source === "age"),
+    mx: textField(knownMax, setKnownMax, "185", numIn(100, 230), source === "known"),
+    r: textField(rest, setRest, "55", numIn(30, 110), method === "karvonen"),
+    m: enumField(method, setMethod, "karvonen", { karvonen: "hrr", percent: "pct" }),
+  });
 
   const ageN = intOrNull(age, 10, 100);
   const knownN = intOrNull(knownMax, 100, 230);
@@ -133,7 +143,12 @@ export default function HeartRateZones() {
         </div>
       </Card>
 
-      <Card title="Your zones" actions={<CopyButton text={summary} />}>
+      <Card title="Your zones" actions={
+          <>
+            <CopyButton text={summary} />
+            <ShareButton />
+          </>
+        }>
         {zones && maxHr ? (
           <div className="flex flex-col gap-4">
             <StatGrid cols={method === "karvonen" ? 3 : 2}>

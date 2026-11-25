@@ -9,10 +9,13 @@ import {
   paceToKmh,
   paceToMph,
 } from "@/lib/calc";
-import { Card, CopyButton, ResultStat, ResultTable, Select, StatGrid, TextInput } from "@/components/ui";
+import { Card, CopyButton, ResultStat, ResultTable, Select, ShareButton, StatGrid, TextInput } from "@/components/ui";
 import { EmptyResult, fmtNum, parseNum, parsePace } from "./shared";
+import { enumField, textField, tokenValue, useUrlState } from "./useUrlState";
 
 type ConvUnit = "minkm" | "minmile" | "kmh" | "mph";
+
+const UNIT_TOKENS: Record<ConvUnit, string> = { minkm: "km", minmile: "mi", kmh: "kmh", mph: "mph" };
 
 const UNITS: ReadonlyArray<{ value: ConvUnit; label: string }> = [
   { value: "minkm", label: "min/km (pace)" },
@@ -56,6 +59,14 @@ export default function PaceConverter() {
     () => (carried && carried.text === value && carried.unit === unit ? carried.sec : toSecPerKm(value, unit)),
     [value, unit, carried],
   );
+  useUrlState({
+    u: enumField(unit, setUnit, "minkm", UNIT_TOKENS),
+    v: textField(value, setValue, "5:00", (r, params) => {
+      const s = toSecPerKm(r, params ? tokenValue(params, "u", UNIT_TOKENS, "minkm") : unit);
+      return s != null && s > 0 && s < 24 * 3600;
+    }),
+  });
+
   const isPace = unit === "minkm" || unit === "minmile";
   const error =
     secPerKm == null ? (isPace ? "Enter a pace like 5:00." : "Enter a speed greater than 0, e.g. 12.") : undefined;
@@ -103,7 +114,12 @@ export default function PaceConverter() {
         </div>
       </Card>
 
-      <Card title="Equivalents" actions={<CopyButton text={summary} />}>
+      <Card title="Equivalents" actions={
+          <>
+            <CopyButton text={summary} />
+            <ShareButton />
+          </>
+        }>
         {secPerKm != null ? (
           <StatGrid cols={4}>
             <ResultStat label="Per km" value={formatPace(secPerKm)} sub="min/km" emphasis={unit === "minkm"} />

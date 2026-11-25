@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatDuration, parseDuration, predictAll, vdotFromRace } from "@/lib/calc";
-import { Card, CopyButton, ResultStat, ResultTable, StatGrid, TextInput } from "@/components/ui";
+import { Card, CopyButton, ResultStat, ResultTable, ShareButton, StatGrid, TextInput } from "@/components/ui";
 import {
   DistanceField,
   EmptyResult,
@@ -16,11 +16,18 @@ import {
   resolveDistanceKm,
   type DistUnit,
 } from "./shared";
+import { DIST_UNIT_TOKENS, distanceField, enumField, isDuration, textField, useUrlState } from "./useUrlState";
 
 export default function RaceTimePredictor() {
   const [dist, setDist] = useState(distanceValue("10k"));
   const [time, setTime] = useState("50:00");
   const [unit, setUnit] = useState<DistUnit>("km");
+
+  useUrlState({
+    d: distanceField(dist, setDist, "10k"),
+    t: textField(time, setTime, "50:00", isDuration()),
+    u: enumField(unit, setUnit, "km", DIST_UNIT_TOKENS),
+  });
 
   const fromKm = resolveDistanceKm(dist);
   const timeErr = durationError(time, "race time") ?? implausibleTimeWarning(parseDuration(time), fromKm);
@@ -70,6 +77,7 @@ export default function RaceTimePredictor() {
           <>
             <UnitToggle value={unit} onChange={setUnit} />
             <CopyButton text={summary} />
+            <ShareButton />
           </>
         }
       >

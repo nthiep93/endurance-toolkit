@@ -9,3 +9,4 @@ export { ResultStat, StatGrid } from "./ResultStat";
 export { ResultTable, type Column } from "./ResultTable";
 export { Button } from "./Button";
 export { CopyButton } from "./CopyButton";
+export { ShareButton } from "./ShareButton";

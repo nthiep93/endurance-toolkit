@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatDuration, kmToMiles, milesToKm, parseDuration, runningCalories } from "@/lib/calc";
-import { Card, CopyButton, NumberInput, ResultStat, ResultTable, Segmented, StatGrid, TextInput } from "@/components/ui";
+import { Card, CopyButton, NumberInput, ResultStat, ResultTable, Segmented, ShareButton, StatGrid, TextInput } from "@/components/ui";
 import {
   EmptyResult,
   UNIT_OPTIONS,
@@ -14,11 +14,26 @@ import {
   parsePace,
   type DistUnit,
 } from "./shared";
+import { DIST_UNIT_TOKENS, enumField, isDuration, numIn, textField, tokenValue, useUrlState } from "./useUrlState";
 
 type WeightUnit = "kg" | "lb";
 type Mode = "distance" | "duration";
 
 const LB_PER_KG = 2.2046226218;
+
+const WEIGHT_UNIT_TOKENS: Record<WeightUnit, string> = { kg: "kg", lb: "lb" };
+
+function validWeight(raw: string, u: WeightUnit): boolean {
+  const n = parseNum(raw);
+  if (n == null || n <= 0) return false;
+  const kg = u === "kg" ? n : n / LB_PER_KG;
+  return kg >= 20 && kg <= 300;
+}
+
+function validPace(raw: string, u: DistUnit): boolean {
+  const s = parsePace(raw, u);
+  return s != null && s >= 120 && s <= 1200;
+}
 
 const fmtKcal = (n: number) => Math.round(n).toLocaleString("en-US");
 
@@ -31,6 +46,21 @@ export default function RunningCaloriesCalculator() {
   const [duration, setDuration] = useState("1:00:00");
   const [pace, setPace] = useState("6:00");
   const [grade, setGrade] = useState("0");
+
+  useUrlState({
+    w: textField(weight, setWeight, "70", (r, params) =>
+      validWeight(r, params ? tokenValue(params, "wu", WEIGHT_UNIT_TOKENS, "kg") : wUnit),
+    ),
+    wu: enumField(wUnit, setWUnit, "kg", WEIGHT_UNIT_TOKENS),
+    m: enumField(mode, setMode, "distance", { distance: "dist", duration: "time" }),
+    u: enumField(unit, setUnit, "km", DIST_UNIT_TOKENS),
+    d: textField(distance, setDistance, "10", numIn(0, 1000, true), mode === "distance"),
+    t: textField(duration, setDuration, "1:00:00", isDuration(24 * 3600), mode === "duration"),
+    p: textField(pace, setPace, "6:00", (r, params) =>
+      validPace(r, params ? tokenValue(params, "u", DIST_UNIT_TOKENS, "km") : unit),
+    ),
+    g: textField(grade, setGrade, "0", numIn(0, 30)),
+  });
 
   const wN = parseNum(weight);
   const weightKg = wN != null && wN > 0 ? (wUnit === "kg" ? wN : wN / LB_PER_KG) : null;
@@ -193,7 +223,12 @@ export default function RunningCaloriesCalculator() {
         </div>
       </Card>
 
-      <Card title="Energy used" actions={<CopyButton text={summary} />}>
+      <Card title="Energy used" actions={
+          <>
+            <CopyButton text={summary} />
+            <ShareButton />
+          </>
+        }>
         {result ? (
           <div className="flex flex-col gap-4">
             <StatGrid cols={3}>

@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { cadenceForPace, paceFromCadenceStride, strideLengthM } from "@/lib/calc";
-import { Card, CopyButton, NumberInput, ResultStat, Segmented, StatGrid, TextInput } from "@/components/ui";
+import { Card, CopyButton, NumberInput, ResultStat, Segmented, ShareButton, StatGrid, TextInput } from "@/components/ui";
 import { EmptyResult, UnitToggle, fmtNum, fmtPace, paceSuffix, parseNum, parsePace, type DistUnit } from "./shared";
+import { DIST_UNIT_TOKENS, enumField, numIn, textField, useUrlState } from "./useUrlState";
 
 type Mode = "stride" | "cadence" | "pace";
 
@@ -15,6 +16,14 @@ export default function CadenceStrideCalculator() {
   const [unit, setUnit] = useState<DistUnit>("km");
   const [cadence, setCadence] = useState("170");
   const [stride, setStride] = useState("1.07");
+
+  useUrlState({
+    m: enumField(mode, setMode, "stride", { stride: "stride", cadence: "cadence", pace: "pace" }),
+    p: textField(pace, setPace, "5:30", (r) => parsePace(r, "km") != null, mode !== "pace"),
+    u: enumField(unit, setUnit, "km", DIST_UNIT_TOKENS),
+    c: textField(cadence, setCadence, "170", numIn(100, 250), mode !== "cadence"),
+    sl: textField(stride, setStride, "1.07", numIn(0.3, 3, true), mode !== "stride"),
+  });
 
   const paceN = parsePace(pace, unit);
   const cadN = parseNum(cadence);
@@ -119,6 +128,7 @@ export default function CadenceStrideCalculator() {
           <>
             {mode === "pace" && <UnitToggle value={unit} onChange={setUnit} />}
             <CopyButton text={summary} />
+            <ShareButton />
           </>
         }
       >

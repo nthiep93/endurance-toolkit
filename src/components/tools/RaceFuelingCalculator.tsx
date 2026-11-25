@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { formatDuration, fuelingPlan, parseDuration } from "@/lib/calc";
-import { Card, CopyButton, NumberInput, RangeInput, ResultStat, StatGrid, TextInput } from "@/components/ui";
+import { Card, CopyButton, NumberInput, RangeInput, ResultStat, ShareButton, StatGrid, TextInput } from "@/components/ui";
 import { EmptyResult, durationError, fmtHM, fmtNum, parseNum } from "./shared";
+import { isDuration, numIn, numberField, textField, useUrlState } from "./useUrlState";
 
 /** fuelingPlan() rejects durations beyond 48 h. */
 const MAX_FUEL_HOURS = 48;
@@ -13,6 +14,13 @@ export default function RaceFuelingCalculator() {
   const [carbs, setCarbs] = useState(60);
   const [gelG, setGelG] = useState("25");
   const [fluid, setFluid] = useState("500");
+
+  useUrlState({
+    t: textField(time, setTime, "4:00:00", isDuration(MAX_FUEL_HOURS * 3600)),
+    c: numberField(carbs, setCarbs, 60, 30, 90),
+    g: textField(gelG, setGelG, "25", numIn(0, 200, true)),
+    f: textField(fluid, setFluid, "500", numIn(0, 3000, true)),
+  });
 
   const durationSec = parseDuration(time);
   const timeErr =
@@ -81,7 +89,12 @@ export default function RaceFuelingCalculator() {
         </div>
       </Card>
 
-      <Card title="Your fueling plan" actions={<CopyButton text={summary} />}>
+      <Card title="Your fueling plan" actions={
+          <>
+            <CopyButton text={summary} />
+            <ShareButton />
+          </>
+        }>
         {plan ? (
           <div className="flex flex-col gap-4">
             <StatGrid cols={4}>

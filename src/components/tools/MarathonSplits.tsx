@@ -10,6 +10,7 @@ import {
   ResultStat,
   ResultTable,
   Segmented,
+  ShareButton,
   StatGrid,
   TextInput,
 } from "@/components/ui";
@@ -26,6 +27,7 @@ import {
   resolveDistanceKm,
   type DistUnit,
 } from "./shared";
+import { DIST_UNIT_TOKENS, distanceField, enumField, isDuration, numIn, textField, useUrlState } from "./useUrlState";
 
 type Strategy = "even" | "negative";
 
@@ -35,6 +37,14 @@ export default function MarathonSplits() {
   const [unit, setUnit] = useState<DistUnit>("km");
   const [strategy, setStrategy] = useState<Strategy>("even");
   const [neg, setNeg] = useState("2");
+
+  useUrlState({
+    d: distanceField(dist, setDist, "marathon"),
+    t: textField(goal, setGoal, "4:00:00", isDuration()),
+    u: enumField(unit, setUnit, "km", DIST_UNIT_TOKENS),
+    s: enumField(strategy, setStrategy, "even", { even: "even", negative: "neg" }),
+    neg: textField(neg, setNeg, "2", numIn(0, 20), strategy === "negative"),
+  });
 
   const km = resolveDistanceKm(dist);
   const goalErr = durationError(goal, "goal time") ?? implausibleTimeWarning(parseDuration(goal), km);
@@ -115,6 +125,7 @@ export default function MarathonSplits() {
               Print pace band
             </Button>
             <CopyButton text={summary} />
+            <ShareButton />
           </span>
         }
       >

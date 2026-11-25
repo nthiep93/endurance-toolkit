@@ -11,7 +11,7 @@ import {
   type PaceRange,
   type TrainingPaces,
 } from "@/lib/calc";
-import { Card, CopyButton, ResultStat, ResultTable, StatGrid, TextInput } from "@/components/ui";
+import { Card, CopyButton, ResultStat, ResultTable, ShareButton, StatGrid, TextInput } from "@/components/ui";
 import {
   DistanceField,
   EmptyResult,
@@ -24,6 +24,7 @@ import {
   resolveDistanceKm,
   type DistUnit,
 } from "./shared";
+import { DIST_UNIT_TOKENS, distanceField, enumField, isDuration, textField, useUrlState } from "./useUrlState";
 
 const PACE_INFO: ReadonlyArray<{ key: keyof TrainingPaces; code: string; name: string; info: string; rep?: boolean }> = [
   { key: "easy", code: "E", name: "Easy", info: "Warm-ups, recovery and long runs. Conversational — builds aerobic base." },
@@ -51,6 +52,12 @@ export default function VdotCalculator() {
   const [dist, setDist] = useState(distanceValue("5k"));
   const [time, setTime] = useState("25:00");
   const [unit, setUnit] = useState<DistUnit>("km");
+
+  useUrlState({
+    d: distanceField(dist, setDist, "5k"),
+    t: textField(time, setTime, "25:00", isDuration()),
+    u: enumField(unit, setUnit, "km", DIST_UNIT_TOKENS),
+  });
 
   const km = resolveDistanceKm(dist);
   const timeErr = durationError(time, "race time");
@@ -103,6 +110,7 @@ export default function VdotCalculator() {
           <>
             <UnitToggle value={unit} onChange={setUnit} />
             <CopyButton text={summary} />
+            <ShareButton />
           </>
         }
       >

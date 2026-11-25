@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { RACE_DISTANCES, formatDuration, kmToMiles, parseDuration, solvePace } from "@/lib/calc";
-import { Card, CopyButton, ResultStat, ResultTable, Segmented, StatGrid, TextInput } from "@/components/ui";
+import { Card, CopyButton, ResultStat, ResultTable, Segmented, ShareButton, StatGrid, TextInput } from "@/components/ui";
 import {
   DistanceField,
   EmptyResult,
@@ -18,6 +18,7 @@ import {
   resolveDistanceKm,
   type DistUnit,
 } from "./shared";
+import { DIST_UNIT_TOKENS, distanceField, enumField, isDuration, textField, useUrlState } from "./useUrlState";
 
 type Solve = "pace" | "time" | "distance";
 
@@ -27,6 +28,14 @@ export default function PaceCalculator() {
   const [time, setTime] = useState("4:00:00");
   const [pace, setPace] = useState("5:41");
   const [unit, setUnit] = useState<DistUnit>("km");
+
+  useUrlState({
+    s: enumField(solve, setSolve, "pace", { pace: "pace", time: "time", distance: "dist" }),
+    d: distanceField(dist, setDist, "marathon", solve !== "distance"),
+    t: textField(time, setTime, "4:00:00", isDuration(), solve !== "time"),
+    p: textField(pace, setPace, "5:41", (r) => parsePace(r, "km") != null, solve !== "pace"),
+    u: enumField(unit, setUnit, "km", DIST_UNIT_TOKENS),
+  });
 
   const distanceKm = resolveDistanceKm(dist);
   const timeErr =
@@ -115,6 +124,7 @@ export default function PaceCalculator() {
           <>
             {solve === "pace" && <UnitToggle value={unit} onChange={setUnit} />}
             <CopyButton text={summary} />
+            <ShareButton />
           </>
         }
       >
