@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Endurance Toolkit
 
-## Getting Started
+Free, fast, no-login running calculators — pace, race prediction, VDOT training paces, heart-rate zones,
+marathon splits, race fueling, cadence/stride. Built to rank on search, get cited by AI answers, and
+monetize with a sponsor slot, affiliates and (later) display ads.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 16 (App Router, fully static: every tool page is pre-rendered with `generateStaticParams`)
+- React 19 client components for the calculators — all math runs in the browser (privacy + $0 server cost)
+- Tailwind CSS v4 with design tokens in `src/app/globals.css` (light/dark)
+- Vitest for the calculation library
+
+## Architecture
+
+```
+src/
+  lib/
+    site.ts            site constants (name, URL from NEXT_PUBLIC_SITE_URL)
+    registry.ts        ← single source of truth: every tool's slug, SEO title/description, keywords, related tools
+    calc/              pure calculation library (no React) + unit tests — contract in docs/CALC_API.md
+  components/
+    tools/             one client component per tool, registered by slug in tools/index.tsx
+    ui/                form + result primitives
+    AdSlot.tsx         sponsor / display slots (off until NEXT_PUBLIC_ADS_ENABLED=1)
+    JsonLd.tsx         safe structured data
+  content/guides/      long-form guide + FAQs per tool (rendered under each calculator, FAQPage/HowTo schema)
+  app/
+    tools/[slug]/      tool page template + per-tool OG image
+    sitemap.ts, robots.ts, llms.txt/route.ts, opengraph-image.tsx
+    about, privacy, sponsor
+docs/
+  CALC_API.md          calc library contract
+  STRATEGY.md          SEO keyword map, tool backlog, monetization + 90-day distribution plan
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Add a new tool (≈1 evening with Claude Code)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Add formulas + tests to `src/lib/calc/` and export from `index.ts`.
+2. Add an entry to `TOOLS` in `src/lib/registry.ts`.
+3. Create `src/components/tools/<Name>.tsx` and register it in `TOOL_COMPONENTS`.
+4. Create `src/content/guides/<slug>.ts` and register it in `GUIDES`.
+5. `npm test && npm run build` — sitemap, llms.txt, OG image and JSON-LD update automatically.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+```bash
+npm install --legacy-peer-deps
+npm run dev      # http://localhost:3000
+npm test         # calc library tests
+npm run lint
+npm run build    # static production build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Environment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Canonical production URL (used in sitemap, canonical tags, JSON-LD) |
+| `NEXT_PUBLIC_ADS_ENABLED` | `1` to render sponsor/display slots |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Push to GitHub and import the repo in Vercel (framework preset: Next.js). Set `NEXT_PUBLIC_SITE_URL` to
+your domain, then submit `https://<domain>/sitemap.xml` in Google Search Console.
