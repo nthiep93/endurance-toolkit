@@ -34,18 +34,21 @@ export const viewport: Viewport = {
 function Header() {
   return (
     <header className="border-b border-line bg-surface/80 backdrop-blur sticky top-0 z-20">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        <Link href="/" className="flex shrink-0 items-center gap-2 font-bold tracking-tight">
           <span aria-hidden className="grid h-7 w-7 place-items-center rounded-md bg-brand text-brand-fg text-sm">
             ET
           </span>
-          <span>{SITE.name}</span>
+          <span className="whitespace-nowrap">{SITE.name}</span>
         </Link>
-        <nav aria-label="Main" className="flex items-center gap-4 text-sm text-muted">
+        <nav aria-label="Main" className="flex items-center gap-3 whitespace-nowrap text-sm text-muted sm:gap-4">
           <Link href="/#tools" className="hover:text-fg">
             Tools
           </Link>
-          <Link href="/about" className="hover:text-fg">
+          <Link href="/pace" className="hover:text-fg">
+            Goal paces
+          </Link>
+          <Link href="/about" className="hidden hover:text-fg sm:inline">
             About
           </Link>
         </nav>

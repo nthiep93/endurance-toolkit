@@ -106,6 +106,42 @@ export function cadenceForPace(paceSecPerKm: number, strideM: number): number | 
 export function paceFromCadenceStride(cadenceSpm: number, strideM: number): number | null;
 ```
 
+## vo2max.ts
+```ts
+/** Cooper 12-min test: (distance_m − 504.9) / 44.73. Accepts 1000..5000 m. */
+export function cooperVo2max(distanceM: number): number | null;
+/** Uth–Sørensen: 15.3 × HRmax / HRrest. Requires 20 ≤ rest < max ≤ 260. */
+export function hrRatioVo2max(maxHr: number, restHr: number): number | null;
+export type Sex = "male" | "female";
+export type Vo2maxCategory = "Below average" | "Average" | "Good" | "Excellent";
+export interface Vo2maxNormRow { minAge: number; maxAge: number | null; label: string; average: number; good: number; excellent: number }
+/** Coarse "rough guide" bands (lower bounds, ml/kg/min) by sex and age band 18–29 … 60+. */
+export const VO2MAX_NORMS: Record<Sex, Vo2maxNormRow[]>;
+export function vo2maxNormRow(age: number, sex: Sex): Vo2maxNormRow | null; // age 18..120
+export function vo2maxCategory(vo2max: number, age: number, sex: Sex): Vo2maxCategory | null;
+```
+For a race-based estimate use `vdotFromRace` (VDOT ≈ effective VO2max) and `raceTimeFromVdot` for equivalent times.
+
+## calories.ts
+```ts
+/** ACSM running equation, gross VO2 (ml/kg/min) = 0.2·v + 0.9·v·grade + 3.5 (v in m/min, grade fraction).
+ *  gradePct accepted 0..30. */
+export function acsmRunningVo2(speedMPerMin: number, gradePct?: number): number | null;
+export interface RunningCalories {
+  distanceKm: number; durationSec: number; paceSecPerKm: number; gradePct: number;
+  vo2MlKgMin: number;      // gross
+  grossKcal: number;       // VO2 (L/min) × 5 × minutes
+  netKcal: number;         // gross minus resting 3.5 ml/kg/min
+  ruleOfThumbKcal: number; // 1 kcal/kg/km
+  grossKcalPerHour: number; grossKcalPerKm: number;
+  belowRunningSpeed: boolean; // speed < 134 m/min (≈ 8 km/h), outside the equation's intended range
+}
+/** weightKg plus exactly two of distanceKm / durationSec / paceSecPerKm.
+ *  Accepted: weight 20..300 kg, duration ≤ 24 h, pace 120..1200 s/km, grade 0..30 %. */
+export function runningCalories(input: { weightKg: number; distanceKm?: number; durationSec?: number; paceSecPerKm?: number; gradePct?: number }): RunningCalories | null;
+```
+Note: on the flat, ACSM net cost is exactly 1 kcal/kg/km (0.2 ml/kg/m × 5 kcal/L), so `netKcal` equals `ruleOfThumbKcal` at 0 % grade.
+
 ## Implementation notes (calc agent)
 - Functions typed `number` (no `| null`) return `0` for invalid input (`kmToMiles`, `milesToKm`, `pacePerKmToPerMile`, `pacePerMileToPerKm`, `paceToKmh`, `paceToMph`). `formatDuration`/`formatPace` return `"--:--"` for invalid input. `predictAll` returns `[]` for invalid input.
 - `parseDuration`: leading part unbounded ("90" = 90 s, "75:00" = 75 min); non-leading parts must be < 60; decimals only on the last part; at most 3 parts.

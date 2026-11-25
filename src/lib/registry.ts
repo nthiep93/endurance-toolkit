@@ -77,7 +77,7 @@ export const TOOLS: ToolMeta[] = [
     category: "training",
     primaryKeyword: "vdot calculator",
     secondaryKeywords: ["training pace calculator", "jack daniels running calculator", "threshold pace calculator"],
-    related: ["race-time-predictor", "heart-rate-zones"],
+    related: ["race-time-predictor", "heart-rate-zones", "vo2max-estimator"],
     emoji: "📈",
   },
   {
@@ -116,7 +116,7 @@ export const TOOLS: ToolMeta[] = [
     category: "nutrition",
     primaryKeyword: "marathon fueling calculator",
     secondaryKeywords: ["how many gels for a marathon", "carbs per hour running", "race nutrition calculator"],
-    related: ["marathon-splits", "race-time-predictor"],
+    related: ["marathon-splits", "race-time-predictor", "running-calories-calculator"],
     emoji: "🍯",
   },
   {
@@ -131,6 +131,32 @@ export const TOOLS: ToolMeta[] = [
     secondaryKeywords: ["running cadence calculator", "steps per minute running", "cadence pace calculator"],
     related: ["pace-converter", "heart-rate-zones"],
     emoji: "👟",
+  },
+  {
+    slug: "vo2max-estimator",
+    name: "VO2max Estimator",
+    seoTitle: "VO2max Calculator for Runners – Race, Cooper & HR Methods",
+    seoDescription:
+      "Estimate your VO2max from a race result (VDOT), the Cooper 12-minute test or resting heart rate, with a rough fitness category and race potential.",
+    summary: "Estimate VO2max from a race, a Cooper test or your heart rate.",
+    category: "training",
+    primaryKeyword: "vo2max calculator",
+    secondaryKeywords: ["vo2 max estimator", "cooper test calculator", "vo2max from race time"],
+    related: ["vdot-calculator", "heart-rate-zones", "race-time-predictor"],
+    emoji: "🫁",
+  },
+  {
+    slug: "running-calories-calculator",
+    name: "Running Calories Burned Calculator",
+    seoTitle: "Running Calories Burned Calculator – ACSM Equation",
+    seoDescription:
+      "Estimate energy used on a run from body weight, distance or pace and incline with the ACSM running equation, compared to the 1 kcal/kg/km rule.",
+    summary: "Energy cost of a run from weight, distance, pace and incline.",
+    category: "nutrition",
+    primaryKeyword: "running calories burned calculator",
+    secondaryKeywords: ["calories burned running", "acsm running equation calculator", "calories per km running"],
+    related: ["race-fueling-calculator", "pace-calculator", "vo2max-estimator"],
+    emoji: "🔥",
   },
 ];
 

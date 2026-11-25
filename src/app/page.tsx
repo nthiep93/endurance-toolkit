@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { CATEGORIES, TOOLS, type ToolCategory } from "@/lib/registry";
 import { JsonLd } from "@/components/JsonLd";
+import { GOALS } from "@/lib/goals";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
@@ -66,6 +67,27 @@ export default function Home() {
             </ul>
           </div>
         ))}
+      </section>
+
+      <section aria-labelledby="goal-paces" className="pb-8 pt-4">
+        <h2 id="goal-paces" className="text-xl font-bold">Goal paces</h2>
+        <p className="mt-1 text-sm text-muted">
+          Split charts, pace bands and training paces for common marathon, half, 10K and 5K goal times.
+        </p>
+        <ul className="mt-4 flex flex-wrap gap-2 text-sm">
+          {GOALS.filter((g) => ["sub-3-marathon-pace", "sub-4-marathon-pace", "sub-2-half-marathon-pace", "sub-50-10k-pace", "sub-25-5k-pace"].includes(g.slug)).map((g) => (
+            <li key={g.slug}>
+              <Link href={`/pace/${g.slug}`} className="block rounded-lg border border-line bg-surface px-3 py-1.5 hover:border-brand">
+                {g.name}
+              </Link>
+            </li>
+          ))}
+          <li>
+            <Link href="/pace" className="block rounded-lg bg-brand px-3 py-1.5 font-semibold text-brand-fg hover:opacity-90">
+              All goal paces
+            </Link>
+          </li>
+        </ul>
       </section>
     </div>
   );

@@ -15,3 +15,5 @@ export * from "./hr";
 export * from "./splits";
 export * from "./fueling";
 export * from "./cadence";
+export * from "./vo2max";
+export * from "./calories";

@@ -9,6 +9,8 @@ import HeartRateZones from "./HeartRateZones";
 import MarathonSplits from "./MarathonSplits";
 import RaceFuelingCalculator from "./RaceFuelingCalculator";
 import CadenceStrideCalculator from "./CadenceStrideCalculator";
+import Vo2maxEstimator from "./Vo2maxEstimator";
+import RunningCaloriesCalculator from "./RunningCaloriesCalculator";
 
 /**
  * Map slug -> interactive tool component. The UI agent creates one component per tool
@@ -24,6 +26,8 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "marathon-splits": MarathonSplits,
   "race-fueling-calculator": RaceFuelingCalculator,
   "cadence-stride-calculator": CadenceStrideCalculator,
+  "vo2max-estimator": Vo2maxEstimator,
+  "running-calories-calculator": RunningCaloriesCalculator,
 };
 
 export function ToolRenderer({ slug }: { slug: string }) {

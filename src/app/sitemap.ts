@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/site";
 import { TOOLS } from "@/lib/registry";
+import { GOALS } from "@/lib/goals";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date(SITE.lastUpdated);
@@ -11,6 +12,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.9,
+    })),
+    { url: `${SITE.url}/pace`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    ...GOALS.map((g) => ({
+      url: `${SITE.url}/pace/${g.slug}`,
+      lastModified: now,
+      changeFrequency: "yearly" as const,
+      priority: 0.7,
     })),
     { url: `${SITE.url}/about`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE.url}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },

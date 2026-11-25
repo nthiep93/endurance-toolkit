@@ -7,6 +7,8 @@ import { guide as heartRateZones } from "./heart-rate-zones";
 import { guide as marathonSplits } from "./marathon-splits";
 import { guide as raceFuelingCalculator } from "./race-fueling-calculator";
 import { guide as cadenceStrideCalculator } from "./cadence-stride-calculator";
+import { guide as vo2maxEstimator } from "./vo2max-estimator";
+import { guide as runningCaloriesCalculator } from "./running-calories-calculator";
 
 /**
  * One file per tool slug in this folder (e.g. pace-calculator.ts exporting
@@ -21,6 +23,8 @@ export const GUIDES: Record<string, Guide> = {
   [marathonSplits.slug]: marathonSplits,
   [raceFuelingCalculator.slug]: raceFuelingCalculator,
   [cadenceStrideCalculator.slug]: cadenceStrideCalculator,
+  [vo2maxEstimator.slug]: vo2maxEstimator,
+  [runningCaloriesCalculator.slug]: runningCaloriesCalculator,
 };
 
 export function getGuide(slug: string): Guide | undefined {
