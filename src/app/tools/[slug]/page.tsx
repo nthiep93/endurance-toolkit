@@ -67,14 +67,6 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
       })),
     });
   }
-  if (guide?.howTo.length) {
-    jsonLd.push({
-      "@context": "https://schema.org",
-      "@type": "HowTo",
-      name: `How to use the ${tool.name}`,
-      step: guide.howTo.map((s, i) => ({ "@type": "HowToStep", position: i + 1, text: s })),
-    });
-  }
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-8">
