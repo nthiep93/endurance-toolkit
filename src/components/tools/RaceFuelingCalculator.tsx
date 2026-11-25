@@ -5,24 +5,30 @@ import { formatDuration, fuelingPlan, parseDuration } from "@/lib/calc";
 import { Card, CopyButton, NumberInput, RangeInput, ResultStat, StatGrid, TextInput } from "@/components/ui";
 import { EmptyResult, durationError, fmtHM, fmtNum, parseNum } from "./shared";
 
+/** fuelingPlan() rejects durations beyond 48 h. */
+const MAX_FUEL_HOURS = 48;
+
 export default function RaceFuelingCalculator() {
   const [time, setTime] = useState("4:00:00");
   const [carbs, setCarbs] = useState(60);
   const [gelG, setGelG] = useState("25");
   const [fluid, setFluid] = useState("500");
 
-  const timeErr = durationError(time, "finish time");
+  const durationSec = parseDuration(time);
+  const timeErr =
+    durationError(time, "finish time") ??
+    (durationSec != null && durationSec > MAX_FUEL_HOURS * 3600
+      ? `Enter a finish time up to ${MAX_FUEL_HOURS} hours.`
+      : undefined);
   const gelN = parseNum(gelG);
   const fluidN = parseNum(fluid);
   const gelErr = gelN == null || gelN <= 0 || gelN > 200 ? "Enter grams of carbs per gel (e.g. 22–40)." : undefined;
   const fluidErr = fluidN == null || fluidN <= 0 || fluidN > 3000 ? "Enter ml per hour (typically 400–800)." : undefined;
 
-  const durationSec = parseDuration(time);
-
   const plan = useMemo(() => {
-    if (!durationSec || gelErr || fluidErr) return null;
+    if (!durationSec || timeErr || gelErr || fluidErr) return null;
     return fuelingPlan({ durationSec, carbsPerHour: carbs, gelCarbsG: gelN ?? 25, fluidMlPerHour: fluidN ?? 500 });
-  }, [durationSec, carbs, gelN, fluidN, gelErr, fluidErr]);
+  }, [durationSec, carbs, gelN, fluidN, timeErr, gelErr, fluidErr]);
 
   const hours = durationSec ? durationSec / 3600 : 0;
   const sodiumTotal = plan ? Math.round(plan.sodiumMgPerHour * hours) : 0;

@@ -12,6 +12,7 @@ import {
   durationError,
   fmtNum,
   fmtPace,
+  implausibleTimeWarning,
   resolveDistanceKm,
   type DistUnit,
 } from "./shared";
@@ -22,7 +23,7 @@ export default function RaceTimePredictor() {
   const [unit, setUnit] = useState<DistUnit>("km");
 
   const fromKm = resolveDistanceKm(dist);
-  const timeErr = durationError(time, "race time");
+  const timeErr = durationError(time, "race time") ?? implausibleTimeWarning(parseDuration(time), fromKm);
 
   const { predictions, vdot } = useMemo(() => {
     const t = parseDuration(time);

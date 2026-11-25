@@ -29,7 +29,7 @@ describe("solvePace", () => {
     expect(solvePace({ distanceKm: -1, timeSec: 3000 })).toBeNull();
     expect(solvePace({ distanceKm: NaN, timeSec: 3000 })).toBeNull();
     expect(solvePace({ timeSec: Infinity, paceSecPerKm: 300 })).toBeNull();
-    expect(solvePace(null as unknown as {})).toBeNull();
+    expect(solvePace(null as unknown as Parameters<typeof solvePace>[0])).toBeNull();
   });
 });
 

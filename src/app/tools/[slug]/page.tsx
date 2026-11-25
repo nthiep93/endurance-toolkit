@@ -91,7 +91,7 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
       </h1>
       <p className="no-print mt-3 text-lg text-muted">{guide?.intro ?? tool.summary}</p>
 
-      <section aria-label="Calculator" className="mt-6 rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-6">
+      <section aria-label="Calculator" className="mt-6">
         <ToolRenderer slug={tool.slug} />
       </section>
 

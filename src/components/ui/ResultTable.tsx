@@ -38,7 +38,7 @@ export function ResultTable<T>({
 }: ResultTableProps<T>) {
   const pad = dense ? "px-2.5 py-1.5" : "px-3 py-2.5";
   return (
-    <div className={cx("overflow-x-auto rounded-xl border border-line", className)} tabIndex={0} role="region"
+    <div className={cx("relative overflow-x-auto rounded-xl border border-line", className)} tabIndex={0} role="region"
       aria-label={typeof caption === "string" ? caption : "Results table"}>
       <table className="w-full border-collapse text-sm tabular">
         {caption ? (

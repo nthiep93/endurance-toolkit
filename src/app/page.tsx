@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { CATEGORIES, TOOLS, type ToolCategory } from "@/lib/registry";
 import { JsonLd } from "@/components/JsonLd";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default function Home() {
   const cats = Object.keys(CATEGORIES) as ToolCategory[];

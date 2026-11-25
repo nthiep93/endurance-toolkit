@@ -21,7 +21,6 @@ export const metadata: Metadata = {
     url: SITE.url,
   },
   twitter: { card: "summary_large_image" },
-  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
 };
 
@@ -58,14 +57,14 @@ function Header() {
 function Footer() {
   return (
     <footer className="mt-16 border-t border-line bg-surface">
-      <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 sm:grid-cols-3">
+      <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <p className="font-semibold">{SITE.name}</p>
           <p className="mt-2 text-sm text-muted">
             {SITE.tagline}. Calculations run in your browser — nothing you type is sent to a server.
           </p>
         </div>
-        {(Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).slice(0, 2).map((c) => (
+        {(Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).map((c) => (
           <div key={c}>
             <p className="text-sm font-semibold">{CATEGORIES[c].label}</p>
             <ul className="mt-2 space-y-1 text-sm text-muted">

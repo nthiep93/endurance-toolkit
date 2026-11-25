@@ -105,7 +105,7 @@ export default function HeartRateZones() {
               />
             )}
             <NumberInput
-              label={method === "karvonen" ? "Resting heart rate" : "Resting heart rate (optional)"}
+              label="Resting heart rate"
               value={rest}
               onChange={setRest}
               min={30}
@@ -113,7 +113,11 @@ export default function HeartRateZones() {
               step={1}
               inputMode="numeric"
               suffix="bpm"
-              hint="Measure on waking, before getting up."
+              hint={
+                method === "karvonen"
+                  ? "Measure on waking, before getting up."
+                  : "Not used by the % of max HR method — only by Karvonen."
+              }
               error={restErr}
             />
           </div>

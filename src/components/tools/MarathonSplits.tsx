@@ -21,6 +21,7 @@ import {
   distanceValue,
   durationError,
   fmtPace,
+  implausibleTimeWarning,
   parseNum,
   resolveDistanceKm,
   type DistUnit,
@@ -36,7 +37,7 @@ export default function MarathonSplits() {
   const [neg, setNeg] = useState("2");
 
   const km = resolveDistanceKm(dist);
-  const goalErr = durationError(goal, "goal time");
+  const goalErr = durationError(goal, "goal time") ?? implausibleTimeWarning(parseDuration(goal), km);
   const negN = parseNum(neg);
   const negErr = strategy === "negative" && (negN == null || negN < 0 || negN > 20) ? "Enter 0–20 %." : undefined;
 
@@ -49,16 +50,9 @@ export default function MarathonSplits() {
 
   const total = rows?.length ? rows[rows.length - 1].cumulativeSec : 0;
   const avgPace = rows && km ? total / km : 0;
-  const halfway = useMemo(() => {
-    if (!rows || !km) return null;
-    // time at the halfway distance, interpolated within the straddling split
-    let d = 0;
-    for (const r of rows) {
-      if (d + r.distanceKm >= km / 2) return r.cumulativeSec - r.splitSec + (km / 2 - d) * r.paceSecPerKm;
-      d += r.distanceKm;
-    }
-    return null;
-  }, [rows, km]);
+  // Exact time at half distance: the whole first half runs at the "slow" pace (avg × (1 + pct/200)).
+  // (Interpolating inside the straddling split used its blended pace and was off by ~1 s.)
+  const halfway = rows ? (total / 2) * (strategy === "negative" ? 1 + (negN ?? 0) / 200 : 1) : null;
 
   const title = `${distanceLabel(dist)} · ${formatDuration(total)} · ${strategy === "even" ? "even" : `${negN}% negative`} split`;
 

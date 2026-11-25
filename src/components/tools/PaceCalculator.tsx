@@ -9,8 +9,10 @@ import {
   UnitToggle,
   distanceValue,
   durationError,
+  fmtDistNum,
   fmtNum,
   fmtPace,
+  implausibleTimeWarning,
   paceSuffix,
   parsePace,
   resolveDistanceKm,
@@ -27,7 +29,11 @@ export default function PaceCalculator() {
   const [unit, setUnit] = useState<DistUnit>("km");
 
   const distanceKm = resolveDistanceKm(dist);
-  const timeErr = solve !== "time" ? durationError(time, "finish time") : undefined;
+  const timeErr =
+    solve !== "time"
+      ? (durationError(time, "finish time") ??
+        (solve === "pace" ? implausibleTimeWarning(parseDuration(time), distanceKm) : undefined))
+      : undefined;
   const paceErr =
     solve !== "pace" ? (parsePace(pace, unit) == null ? "Enter a pace like 5:30." : undefined) : undefined;
 
@@ -53,7 +59,7 @@ export default function PaceCalculator() {
   const summary = result
     ? [
         "Running pace calculation (Endurance Toolkit)",
-        `Distance: ${fmtNum(result.distanceKm, 2)} km (${fmtNum(kmToMiles(result.distanceKm), 2)} mi)`,
+        `Distance: ${fmtDistNum(result.distanceKm)} km (${fmtNum(kmToMiles(result.distanceKm), 2)} mi)`,
         `Time: ${formatDuration(result.timeSec)}`,
         `Pace: ${fmtPace(result.paceSecPerKm, "km")} | ${fmtPace(result.paceSecPerKm, "mile")}`,
         `Speed: ${fmtNum(result.speedKmh)} km/h | ${fmtNum(result.speedMph)} mph`,
@@ -129,7 +135,7 @@ export default function PaceCalculator() {
               />
               <ResultStat
                 label="Distance"
-                value={fmtNum(result.distanceKm, 2)}
+                value={fmtDistNum(result.distanceKm)}
                 sub={`km · ${fmtNum(kmToMiles(result.distanceKm), 2)} mi`}
                 emphasis={solve === "distance"}
               />

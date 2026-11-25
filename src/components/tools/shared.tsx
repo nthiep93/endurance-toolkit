@@ -171,6 +171,23 @@ export function durationError(input: string, what = "time"): string | undefined 
   return undefined;
 }
 
+/** ~2:10/km is faster than the mile world record; anything quicker almost always means
+ *  "3:30" (= 3 min 30 s) was typed for "3:30:00". */
+const IMPLAUSIBLE_PACE_SEC_PER_KM = 130;
+
+/** Warning for a time that implies a humanly impossible pace over the given distance. */
+export function implausibleTimeWarning(timeSec: number | null | undefined, km: number | null | undefined) {
+  if (!timeSec || !km || timeSec <= 0 || km <= 0) return undefined;
+  return timeSec / km < IMPLAUSIBLE_PACE_SEC_PER_KM
+    ? "That's faster than world-record pace — for hours use h:mm:ss, e.g. 3:30:00."
+    : undefined;
+}
+
+/** Distance with up to 3 decimals, trailing zeros trimmed: 42.195, 10, 4.99. */
+export function fmtDistNum(km: number): string {
+  return km.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+}
+
 export function EmptyResult({ children }: { children: ReactNode }) {
   return <p className="rounded-xl border border-dashed border-line p-4 text-sm text-muted">{children}</p>;
 }

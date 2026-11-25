@@ -49,15 +49,27 @@ export default function PaceConverter() {
   const [value, setValue] = useState("5:00");
   const [unit, setUnit] = useState<ConvUnit>("minkm");
 
-  const secPerKm = useMemo(() => toSecPerKm(value, unit), [value, unit]);
+  /** Exact value behind an auto-converted (rounded) display string, so unit switches don't drift. */
+  const [carried, setCarried] = useState<{ text: string; unit: ConvUnit; sec: number } | null>(null);
+
+  const secPerKm = useMemo(
+    () => (carried && carried.text === value && carried.unit === unit ? carried.sec : toSecPerKm(value, unit)),
+    [value, unit, carried],
+  );
   const isPace = unit === "minkm" || unit === "minmile";
   const error =
     secPerKm == null ? (isPace ? "Enter a pace like 5:00." : "Enter a speed greater than 0, e.g. 12.") : undefined;
 
   /** Switching units converts the current value so it stays equivalent. */
   function changeUnit(next: ConvUnit) {
-    if (secPerKm != null) setValue(fromSecPerKm(secPerKm, next));
-    else setValue(next === "minkm" || next === "minmile" ? "5:00" : "12");
+    if (secPerKm != null) {
+      const text = fromSecPerKm(secPerKm, next);
+      setValue(text);
+      setCarried({ text, unit: next, sec: secPerKm });
+    } else {
+      setValue(next === "minkm" || next === "minmile" ? "5:00" : "12");
+      setCarried(null);
+    }
     setUnit(next);
   }
 
